@@ -18,7 +18,7 @@ export const portfolioProjects: PortfolioProject[] = Array.from(
     date: 'Date to be added',
     description: 'Project description to be added.',
     type: 'image' as const,
-    src: '',
+    src: 'https://pub-d80f9a310bab4a36b0db8e5765f7a913.r2.dev/251115000053110003.tif',
     thumbnail: '',
   }),
 );
