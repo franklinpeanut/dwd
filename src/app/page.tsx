@@ -1,70 +1,96 @@
 'use client';
-import { useState } from 'react';
-import Image from 'next/image';
+
+import { useEffect, useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Play } from 'lucide-react';
+import ProjectsGallery from '@/components/ProjectsGallery';
+import { Play, X } from 'lucide-react';
+
+const HERO_VIDEO =
+  'https://pub-d80f9a310bab4a36b0db8e5765f7a913.r2.dev/2024.vid.mo.reel.mp4';
+
+const HERO_POSTER =
+  'https://pub-92ed77724e604fad91dde281455ebb7b.r2.dev/Screenshot%202025-11-12%20at%205.10.05%20PM.png';
 
 export default function HomePage() {
-  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [heroOpen, setHeroOpen] = useState(false);
+
+  useEffect(() => {
+    if (!heroOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setHeroOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [heroOpen]);
 
   return (
-    <main className="relative bg-white text-black">
+    <main className="relative min-h-screen bg-white text-black">
       <Header />
 
-      {/* Hero Video Section with Overlay Text */}
-      <section className="pt-40 pb-20 flex flex-col items-center justify-center px-6 md:px-20 lg:px-32">
-        {/* Inset video thumbnail with play icon overlay */}
-        <div
-          className="relative w-full h-[70vh] overflow-hidden rounded-2xl shadow-2xl cursor-pointer group"
-          onClick={() => setIsLightboxOpen(true)}
+      <section className="px-6 pb-12 pt-40 md:px-20 lg:px-32">
+        <button
+          type="button"
+          aria-label="Play portfolio showreel"
+          onClick={() => setHeroOpen(true)}
+          className="group relative block h-[50vh] min-h-[320px] w-full cursor-pointer overflow-hidden rounded-2xl bg-neutral-900 shadow-2xl md:h-[70vh]"
         >
-          {/* Thumbnail image using Next.js <Image> */}
-          <Image
-            src="https://pub-92ed77724e604fad91dde281455ebb7b.r2.dev/Screenshot%202025-11-12%20at%205.10.05%20PM.png"
-            alt="Darnell White Design"
-            fill
-            priority
-            className="object-cover mb-10 transition-transform duration-500 group-hover:scale-105"
+          {/* Plain img supports your externally hosted poster without Next image host configuration. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={HERO_POSTER}
+            alt="Darnell White Design showreel preview"
+            className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
-
-          {/* Play button overlay */}
-          <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <div className="bg-white/80 backdrop-blur-md rounded-full p-6 shadow-lg">
-              <Play className="w-10 h-10 text-black" />
-            </div>
-          </div>
-        </div>
-
-        {/* Lightbox overlay for video */}
-        {isLightboxOpen && (
-          <div
-            className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-6"
-            onClick={() => setIsLightboxOpen(false)}
-          >
-            <div
-              className="relative w-full max-w-5xl aspect-video rounded-2xl overflow-hidden"
-              onClick={(e) => e.stopPropagation()} // Prevent close on video click
-            >
-              <video
-                src="https://pub-92ed77724e604fad91dde281455ebb7b.r2.dev/0406a8f9-1fdf-4904-bc10-f078bb5f9f7b.MOV"
-                controls
-                autoPlay
-                className="w-full h-full object-cover"
-              />
-              {/* Close button */}
-              <button
-                className="absolute top-4 right-4 bg-white/70 hover:bg-white text-black rounded-full p-2 transition"
-                onClick={() => setIsLightboxOpen(false)}
-              >
-                ✕
-              </button>
-            </div>
-          </div>
-        )}
+          <span className="absolute inset-0 flex items-center justify-center bg-black/25 transition-colors group-hover:bg-black/40">
+            <span className="rounded-full bg-white/90 p-5 shadow-lg backdrop-blur-md transition-transform group-hover:scale-110">
+              <Play className="h-9 w-9 fill-black text-black" aria-hidden="true" />
+            </span>
+          </span>
+        </button>
       </section>
 
+      <ProjectsGallery />
       <Footer />
+
+      {heroOpen && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4 md:p-8"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setHeroOpen(false);
+          }}
+        >
+          <div
+            className="relative w-full max-w-6xl"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Portfolio showreel"
+          >
+            <button
+              type="button"
+              onClick={() => setHeroOpen(false)}
+              aria-label="Close showreel"
+              className="absolute -top-12 right-0 rounded-full p-2 text-white hover:bg-white/20 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              <X className="h-7 w-7" />
+            </button>
+            <video
+              src={HERO_VIDEO}
+              poster={HERO_POSTER}
+              controls
+              autoPlay
+              playsInline
+              className="aspect-video w-full rounded-xl bg-black object-contain"
+            />
+          </div>
+        </div>
+      )}
     </main>
   );
 }
