@@ -55,7 +55,15 @@ export default function HomePage() {
         </button>
       </section>
 
+     
+      </section>
+
+      {/* Projects Gallery — Below Hero Video */}
       <ProjectsGallery />
+
+      <Footer />
+    </main>
+
       <Footer />
 
       {heroOpen && (
